@@ -16,6 +16,7 @@
         "express": "^4.21.1",
         "http": "^0.0.1-security",
         "mercadopago": "^2.0.15",
-        "nodemon": "^3.1.0"
+        "nodemon": "^3.1.0",
+        "pg": "^8.13.1"
     }
 }
