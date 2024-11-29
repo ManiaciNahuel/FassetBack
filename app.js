@@ -6,7 +6,7 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors({
-    origin: 'https://fassetargentina.com/', // Si estás en local
+    origin: 'https://fassetargentina.com', // Si estás en local
     credentials: true,              // Permitir cookies si es necesario
 }));
 app.use(express.json());
