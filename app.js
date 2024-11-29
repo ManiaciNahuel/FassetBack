@@ -1,15 +1,25 @@
+require('dotenv').config(); 
 const express = require('express');
 const cors = require('cors');
 const productosRoutes = require('./routes/productos'); // Importa las rutas
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT;
 
-// Middleware
+const allowedOrigins = ['https://fassetargentina.com', 'http://localhost:3000'];
+
 app.use(cors({
-    origin: 'https://fassetargentina.com', // Si estás en local
-    credentials: true,              // Permitir cookies si es necesario
+    origin: (origin, callback) => {
+        if (allowedOrigins.includes(origin) || !origin) { // !origin permite solicitudes sin origen (Postman)
+            callback(null, true);
+        } else {
+            callback(new Error('No permitido por CORS'));
+        }
+    },
+    credentials: true, // Si necesitas cookies o autenticación
 }));
+
+
 app.use(express.json());
 
 // Ruta de prueba
