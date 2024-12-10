@@ -6,11 +6,12 @@ const productosRoutes = require('./routes/productos'); // Importa las rutas
 const app = express();
 const PORT = process.env.PORT;
 
-const allowedOrigins = ['https://fassetargentina.com', 'http://localhost:3000'];
+// Lista de orígenes permitidos
+const allowedOrigins = ['https://fassetargentina.com', 'http://localhost:3001'];
 
 app.use(cors({
     origin: (origin, callback) => {
-        if (allowedOrigins.includes(origin) || !origin) { // !origin permite solicitudes sin origen (Postman)
+        if (allowedOrigins.includes(origin) || !origin) { // !origin permite solicitudes sin origen (como Postman)
             callback(null, true);
         } else {
             callback(new Error('No permitido por CORS'));
@@ -18,7 +19,6 @@ app.use(cors({
     },
     credentials: true, // Si necesitas cookies o autenticación
 }));
-
 
 app.use(express.json());
 
