@@ -15,6 +15,7 @@ router.get('/', async (req, res) => {
                 p.imagen2,
                 p.imagen3,
                 p.imagen4,
+                p.imagen5,
                 json_agg(json_build_object('talle', s.talle, 'cantidad', s.cantidad)) AS stock
             FROM productos p
             LEFT JOIN stock s ON p.id = s.producto_id
@@ -40,6 +41,7 @@ router.get('/:id', async (req, res) => {
                 p.imagen2,
                 p.imagen3,
                 p.imagen4,
+                p.imagen5,
                 json_agg(json_build_object('talle', s.talle, 'cantidad', s.cantidad)) AS stock
             FROM productos p
             LEFT JOIN stock s ON p.id = s.producto_id
