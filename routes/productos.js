@@ -61,4 +61,35 @@ router.get('/:id', async (req, res) => {
     }
 });
 
+
+// PUT /api/productos/:id/stock
+router.put('/:id/stock', async (req, res) => {
+    const { id } = req.params; // ID del producto
+    const { stock } = req.body; // Array de talles y cantidades actualizadas
+
+    if (!stock || !Array.isArray(stock)) {
+        return res.status(400).json({ error: 'El stock debe ser un array válido' });
+    }
+
+    try {
+        // Actualizar el stock en la base de datos
+        const client = await pool.connect();
+        await Promise.all(
+            stock.map(({ talle, cantidad }) => {
+                return client.query(
+                    `UPDATE stock SET cantidad = $1 WHERE producto_id = $2 AND talle = $3`,
+                    [cantidad, id, talle]
+                );
+            })
+        );
+        client.release();
+
+        res.status(200).json({ message: 'Stock actualizado correctamente' });
+    } catch (error) {
+        console.error('Error al actualizar el stock:', error);
+        res.status(500).json({ error: 'Error al actualizar el stock' });
+    }
+});
+
+
 module.exports = router;
