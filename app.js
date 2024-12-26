@@ -1,4 +1,4 @@
-require('dotenv').config(); 
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const productosRoutes = require('./routes/productos'); // Importa las rutas
@@ -9,27 +9,30 @@ const PORT = process.env.PORT;
 
 // Lista de orígenes permitidos
 const allowedOrigins = ['https://fassetargentina.com', 'http://localhost:3001'];
-app.use('/api/auth', authRoutes);
 
+// Habilitar CORS
 app.use(cors({
     origin: (origin, callback) => {
-        if (allowedOrigins.includes(origin) || !origin) { // !origin permite solicitudes sin origen (como Postman)
-            callback(null, true);
+        if (allowedOrigins.includes(origin) || !origin) { // Permitir Postman y otros orígenes sin cabecera
+            callback(null, true); // Permitir el origen
         } else {
-            callback(new Error('No permitido por CORS'));
+            callback(new Error('No permitido por CORS')); // Bloquear el origen no permitido
         }
     },
-    credentials: true, // Si necesitas cookies o autenticación
+    credentials: true, // Si necesitas enviar cookies o encabezados personalizados
 }));
 
+// Middleware para parsear JSON
 app.use(express.json());
+
+// Rutas
+app.use('/api/auth', authRoutes); // Rutas de autenticación
+app.use('/api/productos', productosRoutes); // Rutas de productos
 
 // Ruta de prueba
 app.get('/api/test', (req, res) => {
     res.json({ message: '¡Conexión exitosa entre frontend y backend!' });
 });
 
-// Rutas
-app.use('/api/productos', productosRoutes);
-
+// Escuchar en el puerto especificado
 app.listen(PORT, () => console.log(`Servidor ejecutándose en el puerto ${PORT}`));

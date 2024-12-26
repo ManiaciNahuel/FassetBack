@@ -1,18 +1,25 @@
 const express = require('express');
 const router = express.Router();
 
-// Usuario y contraseña fijos (puedes cambiar esto según tu preferencia)
+// Credenciales fijas
 const USERNAME = 'admin';
-const PASSWORD = 'clave123'; // Cambia esto por tu clave deseada
+const PASSWORD = 'clave123';
 
-// Endpoint para validar credenciales
 router.post('/login', (req, res) => {
+    console.log('Solicitud recibida:', req.body); // Log para depurar
     const { username, password } = req.body;
 
+    if (!username || !password) {
+        console.error('Error: Faltan credenciales');
+        return res.status(400).json({ error: 'Faltan credenciales' });
+    }
+
     if (username === USERNAME && password === PASSWORD) {
-        res.status(200).json({ message: 'Login exitoso' });
+        console.log('Login exitoso:', { username });
+        return res.status(200).json({ message: 'Login exitoso' });
     } else {
-        res.status(401).json({ error: 'Credenciales inválidas' });
+        console.error('Credenciales inválidas:', { username, password });
+        return res.status(401).json({ error: 'Credenciales inválidas' });
     }
 });
 
