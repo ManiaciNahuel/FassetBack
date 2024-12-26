@@ -2,12 +2,14 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const productosRoutes = require('./routes/productos'); // Importa las rutas
+const authRoutes = require('./routes/auth');
 
 const app = express();
 const PORT = process.env.PORT;
 
 // Lista de orígenes permitidos
 const allowedOrigins = ['https://fassetargentina.com', 'http://localhost:3001'];
+app.use('/api/auth', authRoutes);
 
 app.use(cors({
     origin: (origin, callback) => {
