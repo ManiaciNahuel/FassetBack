@@ -8,22 +8,57 @@ const USERNAME = process.env.USERNAME;
 const PASSWORD = process.env.PASSWORD;
 
 router.post('/login', async (req, res) => {
-    console.log('Cuerpo de la solicitud:', req.body); // Log para verificar el cuerpo recibido
-    const { username, password } = req.body;
+    const { email, password } = req.body;
 
-    if (!username || !password) {
-        console.error('Error: Faltan credenciales');
-        return res.status(400).json({ error: 'Faltan credenciales' });
+    if (!email || !password) {
+        return res.status(400).json({ error: 'Email y contraseña son obligatorios' });
     }
 
-    const isPasswordValid = await bcrypt.compare(password, PASSWORD);
-    if (username === USERNAME && isPasswordValid) {
-        console.log('Login exitoso:', { username });
-        return res.status(200).json({ message: 'Login exitoso' }); // Respuesta de éxito
-    } else {
-        console.error('Credenciales inválidas:', { username });
-        return res.status(401).json({ error: 'Credenciales inválidas' });
+    try {
+        // Buscar usuario por email
+        const result = await db.query('SELECT * FROM usuarios WHERE email = $1', [email]);
+
+        if (result.rows.length === 0) {
+            return res.status(401).json({ error: 'Credenciales inválidas' });
+        }
+
+        const user = result.rows[0];
+
+        // Verificar la contraseña
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        if (!isPasswordValid) {
+            return res.status(401).json({ error: 'Credenciales inválidas' });
+        }
+
+        res.status(200).json({ message: 'Login exitoso', userId: user.id });
+    } catch (error) {
+        console.error('Error al iniciar sesión:', error);
+        res.status(500).json({ error: 'Error al iniciar sesión' });
     }
 });
 
+
+router.post('/register', async (req, res) => {
+    const { email, password, nombre, telefono } = req.body;
+
+    if (!email || !password) {
+        return res.status(400).json({ error: 'Email y contraseña son obligatorios' });
+    }
+
+    try {
+        // Hashear la contraseña
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Insertar en la base de datos
+        const result = await db.query(
+            'INSERT INTO usuarios (email, password, nombre, telefono) VALUES ($1, $2, $3, $4) RETURNING id',
+            [email, hashedPassword, nombre, telefono]
+        );
+
+        res.status(201).json({ message: 'Usuario registrado correctamente', userId: result.rows[0].id });
+    } catch (error) {
+        console.error('Error al registrar usuario:', error);
+        res.status(500).json({ error: 'Error al registrar usuario' });
+    }
+});
 module.exports = router;
