@@ -46,10 +46,8 @@ router.post('/register', async (req, res) => {
     }
 
     try {
-        // Hashear la contraseña
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Insertar en la base de datos
         const result = await db.query(
             'INSERT INTO usuarios (email, password, nombre, telefono) VALUES ($1, $2, $3, $4) RETURNING id',
             [email, hashedPassword, nombre, telefono]
@@ -57,8 +55,10 @@ router.post('/register', async (req, res) => {
 
         res.status(201).json({ message: 'Usuario registrado correctamente', userId: result.rows[0].id });
     } catch (error) {
-        console.error('Error al registrar usuario:', error);
-        res.status(500).json({ error: 'Error al registrar usuario' });
+        console.error('Error al registrar usuario:', error.message, error.stack);
+        res.status(500).json({ error: `Error al registrar usuario: ${error.message}` });
     }
 });
+
+
 module.exports = router;
