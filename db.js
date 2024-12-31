@@ -1,14 +1,16 @@
 const { Pool } = require('pg');
 
 const pool = new Pool({
-    host: process.env.PGHOST || 'localhost',        // Host de la base de datos
-    port: process.env.PGPORT || 5432,              // Puerto
-    user: process.env.PGUSER || 'postgres',        // Usuario
-    password: process.env.PGPASSWORD || 'password', // Contraseña
-    database: process.env.PGDATABASE || 'database', // Base de datos
+    host: process.env.PGHOST || 'localhost',
+    port: process.env.PGPORT || 5432,
+    user: process.env.PGUSER || 'postgres',
+    password: process.env.PGPASSWORD || 'password',
+    database: process.env.PGDATABASE || 'database',
     ssl: {
-        rejectUnauthorized: false,   // Importante para Railway
+        rejectUnauthorized: false,
     },
 });
 
-module.exports = pool;
+module.exports = {
+    query: (text, params) => pool.query(text, params),
+};
