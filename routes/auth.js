@@ -16,7 +16,6 @@ router.post('/login', async (req, res) => {
     }
 
     try {
-        // Buscar usuario por email
         const result = await db.query('SELECT * FROM usuarios WHERE email = $1', [email]);
 
         if (result.rows.length === 0) {
@@ -24,14 +23,17 @@ router.post('/login', async (req, res) => {
         }
 
         const user = result.rows[0];
-
-        // Verificar la contraseña
         const isPasswordValid = await bcrypt.compare(password, user.password);
+
         if (!isPasswordValid) {
             return res.status(401).json({ error: 'Credenciales inválidas' });
         }
 
-        res.status(200).json({ message: 'Login exitoso', userId: user.id });
+        res.status(200).json({ 
+            message: 'Login exitoso', 
+            userId: user.id, 
+            isAdmin: user.is_admin 
+        });
     } catch (error) {
         console.error('Error al iniciar sesión:', error);
         res.status(500).json({ error: 'Error al iniciar sesión' });
@@ -39,9 +41,10 @@ router.post('/login', async (req, res) => {
 });
 
 
+
 router.post('/register', async (req, res) => {
     const { email, password, nombre, telefono } = req.body;
-
+    console.log('Datos recibidos en login:', req.body);
     if (!email || !password) {
         return res.status(400).json({ error: 'Email y contraseña son obligatorios' });
     }
