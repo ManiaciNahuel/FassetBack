@@ -82,26 +82,24 @@ router.get('/:id', async (req, res) => {
 
 
 // PUT /api/productos/:id/stock
-router.put('/:id/stock', verifyAdmin, async (req, res) => {
-    const { id } = req.params; // ID del producto
-    const { stock } = req.body; // Array de talles y cantidades actualizadas
+router.put('/:id/stock', async (req, res) => {
+    const { id } = req.params;
+    const { stock } = req.body;
 
     if (!stock || !Array.isArray(stock)) {
         return res.status(400).json({ error: 'El stock debe ser un array válido' });
     }
 
     try {
-        // Actualizar el stock en la base de datos
-        const client = await pool.connect();
+        // Usar pool.query directamente
         await Promise.all(
             stock.map(({ talle, cantidad }) => {
-                return client.query(
+                return pool.query(
                     `UPDATE stock SET cantidad = $1 WHERE producto_id = $2 AND talle = $3`,
                     [cantidad, id, talle]
                 );
             })
         );
-        client.release();
 
         res.status(200).json({ message: 'Stock actualizado correctamente' });
     } catch (error) {
@@ -109,6 +107,7 @@ router.put('/:id/stock', verifyAdmin, async (req, res) => {
         res.status(500).json({ error: 'Error al actualizar el stock' });
     }
 });
+
 
 
 module.exports = router;
