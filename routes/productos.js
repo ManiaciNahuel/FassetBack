@@ -2,6 +2,25 @@ const express = require('express');
 const pool = require('../db'); // Conexión a la base de datos
 const router = express.Router();
 
+// Middleware para verificar si el usuario es administrador
+const verifyAdmin = async (req, res, next) => {
+    const { userId } = req.body; // Se espera que el userId venga en el cuerpo de la solicitud
+
+    try {
+        const result = await pool.query('SELECT is_admin FROM usuarios WHERE id = $1', [userId]);
+
+        if (result.rows.length === 0 || !result.rows[0].is_admin) {
+            return res.status(403).json({ error: 'No tienes permisos para realizar esta acción.' });
+        }
+
+        next(); // Continúa con la siguiente función si es administrador
+    } catch (error) {
+        console.error('Error al verificar permisos:', error);
+        res.status(500).json({ error: 'Error al verificar permisos' });
+    }
+};
+
+
 // Obtener todos los productos con imágenes y talles
 router.get('/', async (req, res) => {
     try {
@@ -63,7 +82,7 @@ router.get('/:id', async (req, res) => {
 
 
 // PUT /api/productos/:id/stock
-router.put('/:id/stock', async (req, res) => {
+router.put('/:id/stock', verifyAdmin, async (req, res) => {
     const { id } = req.params; // ID del producto
     const { stock } = req.body; // Array de talles y cantidades actualizadas
 
