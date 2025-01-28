@@ -6,6 +6,8 @@ const authRoutes = require('./routes/auth');
 
 const app = express();
 const PORT = process.env.PORT;
+const checkoutRoutes = require('./routes/checkout');
+
 
 // Lista de orígenes permitidos
 const allowedOrigins = ['https://fassetargentina.com', 'http://localhost:3001'];
@@ -36,3 +38,6 @@ app.get('/api/test', (req, res) => {
 
 // Escuchar en el puerto especificado
 app.listen(PORT, () => console.log(`Servidor ejecutándose en el puerto ${PORT}`));
+
+// Otras configuraciones...
+app.use('/api/checkout', checkoutRoutes);
