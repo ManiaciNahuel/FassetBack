@@ -16,16 +16,18 @@ router.post('/create_preference', async (req, res) => {
             items: req.body.items,
             payer: req.body.payer,
             back_urls: {
-                success: "https://tuweb.com/success",
-                failure: "https://tuweb.com/failure",
-                pending: "https://tuweb.com/pending"
+                success: "https://fassetargentina.com/success",
+                failure: "https://fassetargentina.com/failure",
+                pending: "https://fassetargentina.com/pending"
             },
             auto_return: "approved",
         };
 
         const response = await preference.create({ body: preferenceData });
+        const id = response.id
+        const init_point = response.init_point
 
-        res.json({ id: response.id });
+        res.json({ id, init_point});
 
     } catch (error) {
         console.error("Error al crear la preferencia de pago:", error);
