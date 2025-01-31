@@ -18,9 +18,9 @@ router.post('/create_preference', async (req, res) => {
             items: req.body.items,
             payer: req.body.payer,
             back_urls: {
-                success: "https://localhost:3001/success",
-                failure: "https://localhost:3001/failure",
-                pending: "https://localhost:3001/pending"
+                success: "http://localhost:3001/success",
+                failure: "http://localhost:3001/failure",
+                pending: "http://localhost:3001/pending"
             },
             notification_url: "hhttps://fassetback-production-39c8.up.railway.app/api/checkout/webhook",
             auto_return: "approved",
