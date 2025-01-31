@@ -41,44 +41,57 @@ router.post('/create_preference', async (req, res) => {
 
 router.post('/webhook', async (req, res) => {
     try {
-        console.log("🔔 Notificación recibida:", req.body);
+        console.log("📩 Webhook recibido:", req.body);
 
-        if (!req.body || !req.body.action || req.body.action !== "payment.updated") {
-            return res.status(400).json({ error: "Notificación inválida" });
+        const payment = req.body;
+        if (payment.type !== "payment") {
+            return res.status(400).json({ message: "No es un evento de pago" });
         }
 
-        const paymentId = req.body.data.id;
+        // Obtener detalles del pago desde Mercado Pago
+        const paymentId = payment.data.id;
+
         const response = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
+            method: "GET",
             headers: {
-                'Authorization': `Bearer ${process.env.MP_ACCESS_TOKEN}`
+                Authorization: `Bearer ${process.env.MP_ACCESS_TOKEN}`,
+                "Content-Type": "application/json"
             }
         });
 
         const paymentData = await response.json();
+        console.log("🔎 Detalles del pago:", paymentData);
 
+        // Validamos si el pago está aprobado
         if (paymentData.status === "approved") {
-            console.log("✅ Pago aprobado:", paymentData);
+            const itemsComprados = paymentData.additional_info.items;
 
-            const productId = paymentData.external_reference;
-            const quantity = paymentData.transaction_amount; // Esto hay que mapearlo mejor
+            const pool = require("../db"); // Importamos la conexión a la BD
 
-            const client = await pool.connect();
-            await client.query(`
-                UPDATE stock 
-                SET cantidad = cantidad - $1 
-                WHERE producto_id = $2
-            `, [quantity, productId]);
-            client.release();
+            // Restamos stock por cada ítem comprado
+            for (const item of itemsComprados) {
+                const { title, quantity } = item;
 
-            console.log("📉 Stock actualizado para el producto:", productId);
+                await pool.query(
+                    `UPDATE stock SET cantidad = cantidad - $1 WHERE producto_id = (
+                        SELECT id FROM productos WHERE nombre = $2
+                    )`,
+                    [quantity, title]
+                );
+            }
+
+            console.log("✅ Stock actualizado correctamente");
+        } else {
+            console.warn("⚠️ El pago no está aprobado, no se actualiza el stock.");
         }
 
-        res.sendStatus(200);
+        res.sendStatus(200); // Responder 200 OK para que Mercado Pago no reenvíe la notificación
     } catch (error) {
-        console.error("🚨 Error en webhook:", error);
-        res.status(500).json({ error: "Error en el procesamiento del webhook" });
+        console.error("❌ Error procesando webhook:", error);
+        res.status(500).json({ error: "Error en el webhook" });
     }
 });
+
 
 
 module.exports = router;
