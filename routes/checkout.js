@@ -22,7 +22,7 @@ router.post('/create_preference', async (req, res) => {
                 failure: "https://fassetargentina.com/failure",
                 pending: "https://fassetargentina.com/pending"
             },
-            notification_url: "hhttps://fassetback-production-39c8.up.railway.app/api/checkout/webhook",
+            notification_url: "https://fassetback-production-39c8.up.railway.app/api/checkout/webhook",
             auto_return: "approved",
         };
 
