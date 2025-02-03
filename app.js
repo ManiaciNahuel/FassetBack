@@ -4,28 +4,29 @@ const cors = require('cors');
 const productosRoutes = require('./routes/productos'); // Importa las rutas
 const authRoutes = require('./routes/auth');
 const usersRoutes = require('./routes/users'); 
+const checkoutRoutes = require('./routes/checkout');
 
 
 const app = express();
 const PORT = process.env.PORT;
-const checkoutRoutes = require('./routes/checkout');
-app.use('/api/users', usersRoutes);
 
 
 // Lista de orígenes permitidos
 const allowedOrigins = ['https://fassetargentina.com', 'http://localhost:3001'];
 
-// Habilitar CORS
 app.use(cors({
     origin: (origin, callback) => {
-        if (allowedOrigins.includes(origin) || !origin) { // Permitir Postman y otros orígenes sin cabecera
-            callback(null, true); // Permitir el origen
+        if (!origin || allowedOrigins.includes(origin)) { 
+            callback(null, true);
         } else {
-            callback(new Error('No permitido por CORS')); // Bloquear el origen no permitido
+            callback(new Error('No permitido por CORS'));
         }
     },
-    credentials: true, // Si necesitas enviar cookies o encabezados personalizados
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true
 }));
+
 
 // Middleware para parsear JSON
 app.use(express.json());
@@ -34,6 +35,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes); // Rutas de autenticación
 app.use('/api/productos', productosRoutes); // Rutas de productos
 app.use('/api/checkout', checkoutRoutes);
+app.use('/api/users', usersRoutes);
 
 // Ruta de prueba
 app.get('/api/test', (req, res) => {
