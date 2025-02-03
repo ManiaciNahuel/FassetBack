@@ -11,11 +11,11 @@ router.post('/add', async (req, res) => {
 
     try {
         // Verificar si el usuario ya existe en la base de datos
-        const existingUser = await pool.query('SELECT * FROM usuarios WHERE email = $1', [email]);
+        /* const existingUser = await pool.query('SELECT * FROM usuarios WHERE email = $1', [email]);
 
         if (existingUser.rows.length > 0) {
             return res.status(200).json({ message: "Usuario ya registrado." });
-        }
+        } */
 
         // Insertar el nuevo usuario en la base de datos
         const result = await pool.query(
