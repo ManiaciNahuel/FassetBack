@@ -3,10 +3,13 @@ const express = require('express');
 const cors = require('cors');
 const productosRoutes = require('./routes/productos'); // Importa las rutas
 const authRoutes = require('./routes/auth');
+const usersRoutes = require('./routes/users'); 
+
 
 const app = express();
 const PORT = process.env.PORT;
 const checkoutRoutes = require('./routes/checkout');
+app.use('/api/users', usersRoutes);
 
 
 // Lista de orígenes permitidos
