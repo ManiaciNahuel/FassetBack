@@ -11,6 +11,8 @@ const checkoutRoutes = require('./routes/checkout');
 
 // Lista de orígenes permitidos
 const allowedOrigins = ['https://fassetargentina.com', 'http://localhost:3001'];
+const webhookRoutes = require('./routes/webhook'); // Importar el webhook
+app.use('/webhook', webhookRoutes); // Ruta para recibir notificaciones
 
 // Habilitar CORS
 app.use(cors({
