@@ -23,6 +23,9 @@ const verifyAdmin = async (req, res, next) => {
 
 // Obtener todos los productos con imágenes y talles
 router.get('/', async (req, res) => {
+    const startTime = Date.now();
+    console.log('GET /api/productos - Starting request');
+    
     try {
         const result = await pool.query(`
             SELECT 
@@ -40,10 +43,33 @@ router.get('/', async (req, res) => {
             FROM productos p
             LEFT JOIN stock s ON p.id = s.producto_id
             GROUP BY p.id
+            ORDER BY p.id
         `);
+        
+        const duration = Date.now() - startTime;
+        console.log(`GET /api/productos - Success: ${result.rows.length} products, ${duration}ms`);
+        
         res.json(result.rows);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        const duration = Date.now() - startTime;
+        console.error(`GET /api/productos - Error after ${duration}ms:`, {
+            message: error.message,
+            code: error.code,
+            stack: error.stack.split('\n')[0] // Only first line of stack
+        });
+        
+        // Send a more specific error response
+        if (error.code === 'ECONNREFUSED' || error.code === 'ETIMEDOUT') {
+            res.status(503).json({ 
+                error: 'Database connection error', 
+                message: 'Service temporarily unavailable' 
+            });
+        } else {
+            res.status(500).json({ 
+                error: 'Internal server error', 
+                message: 'Error retrieving products' 
+            });
+        }
     }
 });
 
