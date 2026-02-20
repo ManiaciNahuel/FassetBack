@@ -12,26 +12,46 @@ const PORT = process.env.PORT;
 
 
 // Lista de orígenes permitidos
-const allowedOrigins = ['https://fassetargentina.com', 'http://localhost:3001'];
+const allowedOrigins = [
+    'https://fassetargentina.com',
+    'http://localhost:3001',
+    // Hostinger domains - add your actual domain here
+    'https://www.fassetargentina.com',
+    // Add common Hostinger subdomain patterns
+    'https://fassetargentina.hostinger.com',
+    'https://fassetargentina.hostingerapp.com',
+];
 
 app.use(cors({
     origin: (origin, callback) => {
+        console.log('CORS request from origin:', origin);
+        
         // Allow requests with no origin (mobile apps, curl requests, Railway health checks)
         if (!origin) {
+            console.log('CORS: Allowing request with no origin');
             return callback(null, true);
         }
         
         // Allow requests from allowed origins
         if (allowedOrigins.includes(origin)) {
+            console.log('CORS: Allowing request from allowed origin:', origin);
             return callback(null, true);
         }
         
         // For development, allow localhost with any port
         if (origin.startsWith('http://localhost:') || origin.startsWith('https://localhost:')) {
+            console.log('CORS: Allowing localhost origin:', origin);
             return callback(null, true);
         }
         
-        console.log('CORS blocked origin:', origin);
+        // Allow any subdomain of fassetargentina.com
+        if (origin.endsWith('.fassetargentina.com') || origin.endsWith('.hostinger.com') || origin.endsWith('.hostingerapp.com')) {
+            console.log('CORS: Allowing subdomain origin:', origin);
+            return callback(null, true);
+        }
+        
+        console.error('CORS BLOCKED - Origin not allowed:', origin);
+        console.error('Allowed origins:', allowedOrigins);
         callback(new Error('No permitido por CORS'));
     },
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -72,11 +92,17 @@ app.use((error, req, res, next) => {
         stack: error.stack,
         url: req.url,
         method: req.method,
+        origin: req.headers.origin,
+        userAgent: req.headers['user-agent'],
         timestamp: new Date().toISOString()
     });
 
     if (error.message === 'No permitido por CORS') {
-        return res.status(403).json({ error: 'CORS policy violation' });
+        return res.status(403).json({ 
+            error: 'CORS policy violation',
+            message: `Origin ${req.headers.origin} is not allowed. Please contact administrator.`,
+            allowedOrigins: allowedOrigins
+        });
     }
 
     res.status(500).json({ 
