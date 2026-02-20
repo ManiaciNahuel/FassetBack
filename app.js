@@ -14,12 +14,11 @@ const PORT = process.env.PORT;
 // Lista de orígenes permitidos
 const allowedOrigins = [
     'https://fassetargentina.com',
-    'http://localhost:3001',
-    // Hostinger domains - add your actual domain here
     'https://www.fassetargentina.com',
-    // Add common Hostinger subdomain patterns
-    'https://fassetargentina.hostinger.com',
-    'https://fassetargentina.hostingerapp.com',
+    'http://fassetargentina.com', // Para desarrollo/testing
+    'http://www.fassetargentina.com', // Para desarrollo/testing
+    'http://localhost:3001',
+    'https://localhost:3001',
 ];
 
 app.use(cors({
@@ -39,14 +38,14 @@ app.use(cors({
         }
         
         // For development, allow localhost with any port
-        if (origin.startsWith('http://localhost:') || origin.startsWith('https://localhost:')) {
+        if (origin.includes('localhost')) {
             console.log('CORS: Allowing localhost origin:', origin);
             return callback(null, true);
         }
         
-        // Allow any subdomain of fassetargentina.com
-        if (origin.endsWith('.fassetargentina.com') || origin.endsWith('.hostinger.com') || origin.endsWith('.hostingerapp.com')) {
-            console.log('CORS: Allowing subdomain origin:', origin);
+        // Special case for fassetargentina.com variations
+        if (origin.includes('fassetargentina.com')) {
+            console.log('CORS: Allowing fassetargentina.com variation:', origin);
             return callback(null, true);
         }
         
